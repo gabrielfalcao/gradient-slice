@@ -1,6 +1,49 @@
+#![doc(issue_tracker_base_url = "https://github.com/gabrielfalcao/unique-pointer/issues/")]
+//! # Gradient Slice
+//!
+//! gradient-slice is a safe crate to iterate over a gradient of
+//! permutations of slices of a Vec
+//!
+//! ## Example
+//!
+//! ```
+//! use gradient_slice::Gradient;
+//! let result = Gradient::new(" abc ".chars().collect::<Vec<char>>())
+//!     .map(Vec::from)
+//!     .map(|vec| {
+//!         vec.iter()
+//!             .map(Clone::clone)
+//!             .map(String::from)
+//!             .collect::<String>()
+//!     })
+//!     .collect::<Vec<String>>();
+//! assert_eq!(
+//!     result,
+//!     vec![
+//!         " ", "a", "b", "c", " ", " a", "ab", "bc", "c ", " ab", "abc", "bc ", " abc",
+//!         "abc ", " abc "
+//!     ]
+//! );
+//! ```
+
 use std::iter::Iterator;
 use std::marker::PhantomData;
 
+/// ```
+/// use gradient_slice::Gradient;
+/// let result = Gradient::new(0x1BADB002u32.to_be_bytes().to_vec())
+///     .map(Vec::from)
+///     .collect::<Vec<Vec<u8>>>();
+/// assert_eq!(
+///     result,
+///     vec![
+///         vec![27], vec![173], vec![176], vec![2],
+///         vec![27, 173], vec![173, 176], vec![176, 2],
+///         vec![27, 173, 176], vec![173, 176, 2],
+///         vec![27, 173, 176, 2]
+///     ]
+/// );
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Gradient<'a, G> {
     input: Vec<G>,
@@ -73,8 +116,7 @@ mod tests {
 
     #[test]
     fn gradient() {
-        eprintln!();
-        let result = Gradient::new(" abc ".chars().collect::<Vec<char>>())
+        let result = Gradient::new(" abc ".chars().collect())
             .map(Vec::from)
             .map(|vec| {
                 vec.iter()

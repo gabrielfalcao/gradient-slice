@@ -2,11 +2,17 @@
 name = "gradient-slice"
 version = "0.1.0"
 edition = "2024"
-description = "gradient is a safe crate to iterate over a gradient of permutations of slices of a Vec"
+description = "gradient-slice is a safe crate to iterate over a gradient of permutations of slices of a Vec"
 documentation = "https://docs.rs/gradient-slice"
 readme = "README.md"
-homepage = "https://github.com/gabrielfalcao/gradient-slice"
+repository = "https://github.com/gabrielfalcao/gradient-slice"
+homepage = "https://docs.rs/gradient-slice"
 license = "MIT"
 keywords = ["rust", "memory", "library"]
 authors = ["Gabriel DeMoura <gabrielteratos@gmail.com>"]
 categories = ["algorithms"]
+
+
+[lib]
+name = "gradient_slice"
+path = "src/lib.rs"
