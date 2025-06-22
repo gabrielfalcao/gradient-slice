@@ -86,6 +86,21 @@ impl<'a, G: Clone + 'a> Gradient<'a, G> {
     pub fn input(&self) -> Vec<G> {
         self.input.clone()
     }
+
+    /// ```
+    /// use gradient_slice::Gradient;
+    /// let result = Gradient::new(0x1BADB002u32.to_be_bytes().to_vec())
+    ///     .with_max_width(2)
+    ///     .map(Vec::from)
+    ///     .collect::<Vec<Vec<u8>>>();
+    /// assert_eq!(
+    ///     result,
+    ///     vec![
+    ///         vec![27], vec![173], vec![176], vec![2],
+    ///         vec![27, 173], vec![173, 176], vec![176, 2],
+    ///     ]
+    /// );
+    /// ```
     pub fn with_max_width(self, width: usize) -> Gradient<'a, G> {
         let mut gradient = self.clone();
         gradient.max_width = Some(width);
