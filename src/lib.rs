@@ -26,8 +26,8 @@
 //! );
 //! ```
 
-use std::iter::Iterator;
-use std::marker::PhantomData;
+use core::iter::Iterator;
+use core::marker::PhantomData;
 
 /// ```
 /// use gradient_slice::Gradient;
@@ -79,7 +79,7 @@ impl<'a, G: 'a> Iterator for Gradient<'a, G> {
 }
 impl<'a, G: 'a> Gradient<'a, G> {
     fn window(&self) -> &'a [G] {
-        unsafe { std::mem::transmute::<&[G], &'a [G]>(&self.input[self.range()]) }
+        unsafe { core::mem::transmute::<&[G], &'a [G]>(&self.input[self.range()]) }
     }
 
     fn start(&self) -> usize {
@@ -90,7 +90,7 @@ impl<'a, G: 'a> Gradient<'a, G> {
         self.end
     }
 
-    fn range(&self) -> std::ops::Range<usize> {
+    fn range(&self) -> core::ops::Range<usize> {
         self.start()..self.end()
     }
 
