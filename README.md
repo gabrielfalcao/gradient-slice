@@ -4,8 +4,9 @@ gradient slice is a safe crate to iterate over a gradient of permutations of sli
 
 ## Examples
 
-```
+```rust
 use gradient_slice::Gradient;
+
 let boot = Gradient::new(0x1BADB002u32.to_be_bytes().to_vec())
     .map(Vec::from)
     .collect::<Vec<Vec<u8>>>();
@@ -18,6 +19,11 @@ assert_eq!(
         vec![27, 173, 176, 2]
     ]
 );
+```
+
+
+```rust
+use gradient_slice::Gradient;
 
 let alphabet = Gradient::new(" abc ".chars().collect::<Vec<char>>())
     .map(Vec::from)

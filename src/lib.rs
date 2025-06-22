@@ -51,16 +51,15 @@ pub struct Gradient<'a, G> {
     end: usize,
     width: usize,
     wide: bool,
+
     _marker: PhantomData<&'a G>,
 }
 impl<'a, G: 'a> Iterator for Gradient<'a, G> {
     type Item = &'a [G];
 
     fn next(&mut self) -> Option<&'a [G]> {
-        if self.end == self.input.len() {
-            if self.width == self.len() {
-                return None;
-            }
+        if self.finished() {
+            return None;
         }
         self.end += 1;
         if !self.wide {
@@ -77,24 +76,45 @@ impl<'a, G: 'a> Iterator for Gradient<'a, G> {
         Some(self.window())
     }
 }
+impl<'a, G: Clone + 'a> Gradient<'a, G> {
+    pub fn input(&self) -> Vec<G> {
+        self.input.clone()
+    }
+}
 impl<'a, G: 'a> Gradient<'a, G> {
-    fn window(&self) -> &'a [G] {
+    pub fn window(&self) -> &'a [G] {
         unsafe { core::mem::transmute::<&[G], &'a [G]>(&self.input[self.range()]) }
     }
 
-    fn start(&self) -> usize {
+    pub fn finished(&self) -> bool {
+        if self.len() == 0 {
+            return true;
+        }
+        if self.end == self.len() {
+            if self.width == self.len() {
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn start(&self) -> usize {
         self.start
     }
 
-    fn end(&self) -> usize {
+    pub fn end(&self) -> usize {
         self.end
     }
 
-    fn range(&self) -> core::ops::Range<usize> {
+    pub fn range(&self) -> core::ops::Range<usize> {
         self.start()..self.end()
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.input.len()
     }
 
@@ -132,5 +152,9 @@ mod tests {
                 "abc ", " abc "
             ]
         );
+    }
+    #[test]
+    fn empty() {
+        assert_eq!(Gradient::new(Vec::<char>::new()).collect::<Vec<_>>().len(), 0);
     }
 }
