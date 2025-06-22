@@ -51,6 +51,7 @@ pub struct Gradient<'a, G> {
     end: usize,
     width: usize,
     wide: bool,
+    max_width: Option<usize>,
 
     _marker: PhantomData<&'a G>,
 }
@@ -73,12 +74,22 @@ impl<'a, G: 'a> Iterator for Gradient<'a, G> {
         if self.end == self.len() {
             self.wide = false;
         }
+        if let Some(max_width) = self.max_width {
+            if self.width > max_width {
+                return None;
+            }
+        }
         Some(self.window())
     }
 }
 impl<'a, G: Clone + 'a> Gradient<'a, G> {
     pub fn input(&self) -> Vec<G> {
         self.input.clone()
+    }
+    pub fn with_max_width(self, width: usize) -> Gradient<'a, G> {
+        let mut gradient = self.clone();
+        gradient.max_width = Some(width);
+        gradient
     }
 }
 impl<'a, G: 'a> Gradient<'a, G> {
@@ -125,6 +136,7 @@ impl<'a, G: 'a> Gradient<'a, G> {
             end: 0,
             width: 1,
             wide: true,
+            max_width: None,
             _marker: PhantomData,
         }
     }
@@ -155,6 +167,27 @@ mod tests {
     }
     #[test]
     fn empty() {
-        assert_eq!(Gradient::new(Vec::<char>::new()).collect::<Vec<_>>().len(), 0);
+        assert_eq!(
+            Gradient::new(Vec::<char>::new()).collect::<Vec<_>>().len(),
+            0
+        );
+    }
+
+    #[test]
+    fn max_width() {
+        let result = Gradient::new(" abc ".chars().collect())
+            .with_max_width(2)
+            .map(Vec::from)
+            .map(|vec| {
+                vec.iter()
+                    .map(Clone::clone)
+                    .map(String::from)
+                    .collect::<String>()
+            })
+            .collect::<Vec<String>>();
+        assert_eq!(
+            result,
+            vec![" ", "a", "b", "c", " ", " a", "ab", "bc", "c "]
+        );
     }
 }
