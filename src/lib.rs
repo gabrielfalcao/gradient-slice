@@ -87,10 +87,12 @@ impl<'a, G: Clone + 'a> Gradient<'a, G> {
         self.input.clone()
     }
 
+    /// `with_max_width` creates a [Gradient](Self) that optionally
+    /// spans to a maximum slice width.
+    ///
     /// ```
     /// use gradient_slice::Gradient;
-    /// let result = Gradient::new(0x1BADB002u32.to_be_bytes().to_vec())
-    ///     .with_max_width(2)
+    /// let result = Gradient::with_max_width(0x1BADB002u32.to_be_bytes().to_vec(), Some(2))
     ///     .map(Vec::from)
     ///     .collect::<Vec<Vec<u8>>>();
     /// assert_eq!(
@@ -101,10 +103,16 @@ impl<'a, G: Clone + 'a> Gradient<'a, G> {
     ///     ]
     /// );
     /// ```
-    pub fn with_max_width(self, width: usize) -> Gradient<'a, G> {
-        let mut gradient = self.clone();
-        gradient.max_width = Some(width);
-        gradient
+    pub fn with_max_width(s: Vec<G>, max_width: Option<usize>) -> Gradient<'a, G> {
+        Gradient {
+            input: s,
+            start: 0,
+            end: 0,
+            width: 1,
+            wide: true,
+            max_width,
+            _marker: PhantomData,
+        }
     }
 }
 impl<'a, G: 'a> Gradient<'a, G> {
@@ -190,8 +198,7 @@ mod tests {
 
     #[test]
     fn max_width() {
-        let result = Gradient::new(" abc ".chars().collect())
-            .with_max_width(2)
+        let result = Gradient::with_max_width(" abc ".chars().collect(), Some(2))
             .map(Vec::from)
             .map(|vec| {
                 vec.iter()
